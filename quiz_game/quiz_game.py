@@ -11,21 +11,21 @@ def create_or_load_workbook(path):
     return load_workbook(path)
 
 def get_data_from_excel(sheet):
-    data={'sheet_count':sheet.max_row,'questions':[],'options':[],'answer':""}
+    data={'sheet_count':sheet.max_row,'questions':[],'options':[],'answer':[]}
     for i in range(1,data['sheet_count']+1):
         data['questions'].append(sheet[f'A{i}'].value)
         data['options'].append(sheet[f'B{i}'].value)
-        data['answer']= sheet[f'C{i}'].value
+        data['answer'].append(sheet[f'C{i}'].value)
     return data
 
 
 def display_question(data):
     print('ddddddddddddddddddddddddddd',data)
     print(data['sheet_count'])
-    random_question=random.randint(0,data['sheet_count'])-1
-    print(random_question)
+    random_question=random.randint(0,data['sheet_count']-1)
+    print("++++++++++++++++++++++++++index",random_question)
     index_opt=["1.","2.","3.","4."]
-    opt=(data['options'][random_question]).split(',')
+    opt=data['options'][random_question].split(',')
 
     print('Here is your question, try to select the option correctly.\n')
 
@@ -34,14 +34,12 @@ def display_question(data):
     for i in range(min(len(opt), len(index_opt))):
         print(f"{index_opt[i]} {opt[i]}")
     print('-----------',type(opt),"---",opt)
-    answer_index=(opt.index(data['answer']))-1
-    original_answer=[answer_index, data['answer']]
+    answer_index=(opt.index(data['answer'][random_question]))
+    original_answer=[answer_index+1, data['answer'][random_question]]
     
     return original_answer
 
-    # for i in range(min(len(opt), len(index_opt))):
-#     print(f"{index_opt[i]}{opt[i]}")
-    
+
 
 
 def add_quesiont_in_excel():
@@ -55,7 +53,10 @@ def add_quesiont_in_excel():
     options=""
     for i in range(number_of_opt):
         get_opt=input(f'Enter option number {i+1}:')
-        options += f'{get_opt.strip()}'
+        if i!=(number_of_opt - 1):
+            options += f'{get_opt.strip()},'
+        else:
+            options += f'{get_opt.strip()}'
     answer=input('Now add the correct answer from the option->')
     if not answer in options:
         return 'check your answer, Try again!'
@@ -74,22 +75,51 @@ def get_user_choice():
     return int(input("Enter the option:"))
 
 def check_answer(selected_option,original_answer):
+    print(original_answer)
     if selected_option == original_answer[0]:
         print('You have chosen the correct answer:', original_answer[1])
     else:
         print(f'You have chosen the wrong answer. The correct answer is {original_answer[1]}')
 
-    
-    
-    
-
-    
-
+def restart_main():
+    main()
 
 def main():
     path=r"C:\Users\Kishore\OneDrive\Desktop\Front_end\pyproject\weather_app\Weather_app\quiz_game\quiz.xlsx"
     wb_load=create_or_load_workbook(path)
     sheet=wb_load.active
+
+
+    while True:
+        print("Welcome to quiz game! here you begin your questions.")
+        print("Enter 1 to play quizz, 2 to add your new question and press any key to exit...")
+        
+        first_user_choice=get_user_choice()
+        if first_user_choice==1:
+            print('yes welcome to quis')
+            a=get_data_from_excel(sheet)
+            print(a)
+
+            b=display_question(a)
+            selected_option=get_user_choice()
+            c=check_answer(selected_option,b)
+            print(c)
+
+        elif first_user_choice==2:
+            print('add your questions')
+            add=add_quesiont_in_excel()
+            print(add)
+            s1=save_questions(wb_load, sheet,path, add)
+            print(s1)
+            get_choice=get_user_choice()
+            opt = display_question(sheet)
+            answer = opt.index(sheet['C1'].value) + 1
+            restart_main()
+            
+
+        else:
+            print("Play or add questions again!")
+            break
     
     # add=add_quesiont_in_excel()
     # print(add)
@@ -98,16 +128,16 @@ def main():
     # get_choice=get_user_choice()
     # opt = display_question(sheet)
     # answer = opt.index(sheet['C1'].value) + 1
-    a=get_data_from_excel(sheet)
-    print(a)
-
-    b=display_question(a)
-    selected_option=get_user_choice()
-    c=check_answer(selected_option,b)
-    print(c)
 
 
 
+    # a=get_data_from_excel(sheet)
+    # print(a)
+
+    # b=display_question(a)
+    # selected_option=get_user_choice()
+    # c=check_answer(selected_option,b)
+    # print(c)
 
 main()
 
